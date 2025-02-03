@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DeepSeek Chat</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="bg-light">
+  <div class="container my-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">DeepSeek Chat</h4>
+      </div>
+      <div class="card-body" id="chat" style="height: 400px; overflow-y: auto;">
+
+      </div>
+      <div class="card-footer">
+        <form id="chatForm" class="d-flex">
+          <input type="text" id="message" name="message" class="form-control me-2" placeholder="Type your message..." required>
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const chatDiv = document.getElementById("chat");
+    const form = document.getElementById("chatForm");
+    const messageInput = document.getElementById("message");
+
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const userMessage = messageInput.value;
+      appendMessage("You", userMessage);
+      messageInput.value = "";
+      const formData = new URLSearchParams();
+      formData.append("message", userMessage);
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: formData.toString()
+      });
+      if (response.ok) {
+        const data = await response.json();
+        appendMessage("DeepSeek", data.response);
+      } else {
+        appendMessage("Error", "Failed to get response from DeepSeek.");
+      }
+    });
+
+    function appendMessage(sender, content) {
+      const p = document.createElement("p");
+      p.className = "mb-1";
+      p.innerHTML = `<strong>${sender}:</strong> ${content}`;
+      chatDiv.appendChild(p);
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+  </script>
+</body>
+</html>
